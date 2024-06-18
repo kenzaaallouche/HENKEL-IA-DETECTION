@@ -4,4 +4,4 @@ streamlit
 numpy
 Pillow
 ultralytics==8.0.117
-opencv-python
+opencv-python-headless
