@@ -36,7 +36,9 @@ if uploaded_file is not None:
     image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
     # Effectuer la détection des objets
-    results = model(image_bgr)
+    res = model.predict(uploaded_file
+                        )
+    #results = model(image_bgr)
 
     # Dictionnaire pour compter le nombre de chaque produit détecté
     product_counts = {}
