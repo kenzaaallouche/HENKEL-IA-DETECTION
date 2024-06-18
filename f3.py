@@ -26,8 +26,20 @@ uploaded_file = st.file_uploader("Choisissez une image...", type=["jpg", "jpeg",
 
 if uploaded_file is not None:
     # Lire l'image téléchargée
-     res = model.predict(uploaded_file,
+    res = model.predict(uploaded_file,
                         conf=confidence
                         )
-
+    boxes = res[0].boxes
+    res_plotted = res[0].plot()[:, :, ::-1]
+    with col2:
+        st.image(res_plotted,
+                 caption='Detected Image',
+                 use_column_width=True
+                 )
+        try:
+            with st.expander("Detection Results"):
+                for box in boxes:
+                    st.write(box.xywh)
+        except Exception as ex:
+            st.write("No image is uploaded yet!")
     
