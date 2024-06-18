@@ -29,52 +29,5 @@ if uploaded_file is not None:
      res = model.predict(uploaded_file,
                         conf=confidence
                         )
-    boxes = res[0].boxes
-    res_plotted = res[0].plot()[:, :, ::-1]
-    image = Image.open(uploaded_file)
-    image = np.array(image)
+
     
-    # Convertir l'image en BGR pour OpenCV
-    image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-    # Effectuer la détection des objets
-    
-    try:
-        results = model(image_bgr)
-    except Exception as ex:
-        
-        st.error(ex)       
-    #
-
-    # Dictionnaire pour compter le nombre de chaque produit détecté
-    product_counts = {}
-
-    # Compter le nombre total de produits détectés
-    total_detected = 0
-    for result in results:
-        boxes = result.boxes
-        total_detected += len(boxes)
-        for box in boxes:
-            cls = int(box.cls)
-            confidence = float(box.conf)
-            class_name = model.names[cls]
-            
-            if class_name not in product_counts:
-                product_counts[class_name] = 0
-            product_counts[class_name] += 1
-
-            # Afficher les résultats avec matplotlib
-            
-
-    # Afficher le nombre total de produits détectés
-    st.header('Nombre total de produits détectés:')
-    st.write(total_detected)
-
-    # Afficher le nombre de produits détectés par classe avec barres de progression
-    st.header('Nombre de produits détectés par classe:')
-    for product, count in product_counts.items():
-        percentage = count / total_detected * 100
-        st.write(f'{product}: {count} ({percentage:.2f}%)')
-        st.progress(percentage / 100.0)
-    result_image = result.plot()
-    st.image(cv2.cvtColor(result_image, cv2.COLOR_BGR2RGB), caption='Image avec détections', use_column_width=True)
