@@ -19,7 +19,13 @@ st.sidebar.header('Choisissez BRAND')
 confidence = float(st.slider(
         "Select Model Confidence", 25, 100, 40)) / 100
 # Charger le modèle YOLOv8 pré-entraîné
-
+model_path='best.pt'
+try:
+    model = YOLO(model_path)
+except Exception as ex:
+    st.error(
+        f"Unable to load model. Check the specified path: {model_path}")
+    st.error(ex)
 
 # Télécharger une image à analyser
 uploaded_file = st.file_uploader("Choisissez une image...", type=["jpg", "jpeg", "png"])
