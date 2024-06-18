@@ -18,7 +18,7 @@ st.sidebar.header('Choisissez BRAND')
 
 # Charger le modèle YOLOv8 pré-entraîné
 try:
-    model = YOLO('best.pt')
+    model = YOLO('best.pt', model='yolov5')
 except Exception as ex:
     st.error(
         f"Unable to load model. Check the specified path: best.pt")
