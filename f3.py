@@ -1,71 +1,53 @@
-# Import required libraries
-import PIL
-
+# Importation des bibliothèques nécessaires
 import streamlit as st
+from PIL import Image
 from ultralytics import YOLO
 
-# Replace the relative path to your weight file
+# Chemin vers le fichier de poids du modèle
 model_path = 'best.pt'
 
-# Setting page layout
+# Configuration de la page
 st.set_page_config(
-    page_title="Object Detection",  # Setting page title
-    page_icon="🤖",     # Setting page icon
-    layout="wide",      # Setting layout to wide
-    initial_sidebar_state="expanded",    # Expanding sidebar by default
-    
+    page_title="Détection d'objets",  # Titre de la page
+    page_icon=":robot_face:",  # Icône de la page
+    layout="wide",  # Mise en page large
+    initial_sidebar_state="expanded"  # Barre latérale initialement étendue
 )
 
-# Creating sidebar
+# Barre latérale pour le téléchargement de l'image et la configuration du modèle
 with st.sidebar:
-    st.header("Image Config")     # Adding header to sidebar
-    # Adding file uploader to sidebar for selecting images
-    source_img = st.file_uploader(
-        "Upload an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp'))
+    st.header("Configuration de l'image")
+    source_img = st.file_uploader("Télécharger une image...", type=["jpg", "jpeg", "png"])
 
-    # Model Options
-    confidence = float(st.slider(
-        "Select Model Confidence", 25, 100, 40)) / 100
+    confidence = st.slider("Confiance du modèle", 0.25, 1.0, 0.4, step=0.05)
 
-# Creating main page heading
-st.title("Object Detection")
-st.caption('Updload a photo with this :blue[hand signals]: :+1:, :hand:, :i_love_you_hand_sign:, and :spock-hand:.')
-st.caption('Then click the :blue[Detect Objects] button and check the result.')
-# Creating two columns on the main page
-col1, col2 = st.columns(2)
+# Titre principal
+st.title("Détection d'objets")
 
-# Adding image to the first column if image is uploaded
-with col1:
-    if source_img:
-        # Opening the uploaded image
-        uploaded_image = PIL.Image.open(source_img)
-        # Adding the uploaded image to the page with a caption
-        st.image(source_img,
-                 caption="Uploaded Image",
-                 use_column_width=True
-                 )
+# Affichage de l'image téléchargée si elle existe
+if source_img is not None:
+    uploaded_image = Image.open(source_img)
+    st.image(uploaded_image, caption="Image téléchargée", use_column_width=True)
 
+# Chargement du modèle YOLO
 try:
     model = YOLO(model_path)
 except Exception as ex:
-    st.error(
-        f"Unable to load model. Check the specified path: {model_path}")
+    st.error(f"Impossible de charger le modèle. Veuillez vérifier le chemin spécifié: {model_path}")
     st.error(ex)
 
-if st.sidebar.button('Detect Objects'):
-    res = model.predict(uploaded_image,
-                        conf=confidence
-                        )
-    boxes = res[0].boxes
-    res_plotted = res[0].plot()[:, :, ::-1]
-    with col2:
-        st.image(res_plotted,
-                 caption='Detected Image',
-                 use_column_width=True
-                 )
-        try:
-            with st.expander("Detection Results"):
-                for box in boxes:
-                    st.write(box.xywh)
-        except Exception as ex:
-            st.write("No image is uploaded yet!")
+# Bouton pour détecter les objets
+if st.sidebar.button('Détecter les objets'):
+    if source_img is not None:
+        # Prédiction des objets dans l'image téléchargée
+        results = model(source_img, conf=confidence)
+
+        # Affichage de l'image avec les boîtes englobantes
+        st.image(results.render()[0], caption='Image avec détection', use_column_width=True)
+
+        # Affichage des résultats de détection
+        with st.expander("Résultats de la détection"):
+            for box in results.pandas().xywh[0].iterrows():
+                st.write(box[1])
+    else:
+        st.warning("Veuillez d'abord télécharger une image.")
