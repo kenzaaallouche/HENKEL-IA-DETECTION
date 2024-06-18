@@ -5,3 +5,4 @@ numpy
 Pillow
 ultralytics==8.0.117
 opencv-python-headless
+torch==1.10.0
