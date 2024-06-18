@@ -17,7 +17,12 @@ st.sidebar.header('Choisissez BRAND')
 # Afficher le logo
 
 # Charger le modèle YOLOv8 pré-entraîné
-model = YOLO('./runs/detect/train6/weights/best.pt')
+try:
+    model = YOLO('best.pt')
+except Exception as ex:
+    st.error(
+        f"Unable to load model. Check the specified path: best.pt")
+    st.error(ex)
 
 # Télécharger une image à analyser
 uploaded_file = st.file_uploader("Choisissez une image...", type=["jpg", "jpeg", "png"])
