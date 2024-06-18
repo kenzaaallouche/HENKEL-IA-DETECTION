@@ -16,7 +16,7 @@ st.sidebar.image(logo_path,caption="HENKEL IA DETECTION ")
 st.sidebar.header('Choisissez BRAND')
 # Afficher le logo
 # Model Options
-    confidence = float(st.slider(
+confidence = float(st.slider(
         "Select Model Confidence", 25, 100, 40)) / 100
 # Charger le modèle YOLOv8 pré-entraîné
 
