@@ -1,25 +1,50 @@
-# Importation des bibliothèques nécessaires
-from ultralytics import YOLO
-import cv2
+# Import required libraries
+import PIL
+
 import streamlit as st
-import numpy as np
-from PIL import Image
+from ultralytics import YOLO
 
-# Configuration de l'application Streamlit
-st.title("HENKEL Détection PRIL VS BINGO")
-logo_path = 'Henkel.png'  # Remplacez par le chemin réel de votre logo
+# Replace the relative path to your weight file
+model_path = 'best.pt'
 
-st.divider()
-st.sidebar.image(logo_path,caption="HENKEL IA DETECTION ")
+# Setting page layout
+st.set_page_config(
+    page_title="Object Detection",  # Setting page title
+    page_icon="🤖",     # Setting page icon
+    layout="wide",      # Setting layout to wide
+    initial_sidebar_state="expanded",    # Expanding sidebar by default
+    
+)
 
+# Creating sidebar
+with st.sidebar:
+    st.header("Image Config")     # Adding header to sidebar
+    # Adding file uploader to sidebar for selecting images
+    source_img = st.file_uploader(
+        "Upload an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp'))
 
-st.sidebar.header('Choisissez BRAND')
-# Afficher le logo
-# Model Options
-confidence = float(st.slider(
+    # Model Options
+    confidence = float(st.slider(
         "Select Model Confidence", 25, 100, 40)) / 100
-# Charger le modèle YOLOv8 pré-entraîné
-model_path='best.pt'
+
+# Creating main page heading
+st.title("Object Detection")
+st.caption('Updload a photo with this :blue[hand signals]: :+1:, :hand:, :i_love_you_hand_sign:, and :spock-hand:.')
+st.caption('Then click the :blue[Detect Objects] button and check the result.')
+# Creating two columns on the main page
+col1, col2 = st.columns(2)
+
+# Adding image to the first column if image is uploaded
+with col1:
+    if source_img:
+        # Opening the uploaded image
+        uploaded_image = PIL.Image.open(source_img)
+        # Adding the uploaded image to the page with a caption
+        st.image(source_img,
+                 caption="Uploaded Image",
+                 use_column_width=True
+                 )
+
 try:
     model = YOLO(model_path)
 except Exception as ex:
@@ -27,12 +52,8 @@ except Exception as ex:
         f"Unable to load model. Check the specified path: {model_path}")
     st.error(ex)
 
-# Télécharger une image à analyser
-uploaded_file = st.file_uploader("Choisissez une image...", type=["jpg", "jpeg", "png"])
-
-if uploaded_file is not None:
-    # Lire l'image téléchargée
-    res = model.predict(uploaded_file,
+if st.sidebar.button('Detect Objects'):
+    res = model.predict(uploaded_image,
                         conf=confidence
                         )
     boxes = res[0].boxes
@@ -48,4 +69,3 @@ if uploaded_file is not None:
                     st.write(box.xywh)
         except Exception as ex:
             st.write("No image is uploaded yet!")
-    
