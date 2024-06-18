@@ -15,20 +15,22 @@ st.sidebar.image(logo_path,caption="HENKEL IA DETECTION ")
 
 st.sidebar.header('Choisissez BRAND')
 # Afficher le logo
-
+# Model Options
+    confidence = float(st.slider(
+        "Select Model Confidence", 25, 100, 40)) / 100
 # Charger le modèle YOLOv8 pré-entraîné
-try:
-    model = YOLO('best.pt')
-except Exception as ex:
-    st.error(
-        f"Unable to load model. Check the specified path: best.pt")
-    st.error(ex)
+
 
 # Télécharger une image à analyser
 uploaded_file = st.file_uploader("Choisissez une image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     # Lire l'image téléchargée
+     res = model.predict(uploaded_file,
+                        conf=confidence
+                        )
+    boxes = res[0].boxes
+    res_plotted = res[0].plot()[:, :, ::-1]
     image = Image.open(uploaded_file)
     image = np.array(image)
     
